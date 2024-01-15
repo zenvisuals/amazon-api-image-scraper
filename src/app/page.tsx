@@ -1,9 +1,58 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [associatesTag, setAssociatesTag] = useState<string>("");
+  const [accessKey, setAccessKey] = useState<string>("");
+  const [secretKey, setSecretKey] = useState<string>("");
+  const [asin, setASIN] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<Boolean>(false);
+  const [response, setResponse] = useState<any>({
+    images: [],
+    title: "",
+  });
+
+  const onClickGetImages = async () => {
+    setIsLoading(true);
+    setResponse({
+      images: [],
+      title: "",
+    });
+    const headers = new Headers();
+    headers.set("x-amz-access-key", accessKey);
+    headers.set("x-amz-secret-key", secretKey);
+    const response = await fetch("/api/v1/images", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        associatesTag,
+        asin,
+      }),
+    });
+
+    setIsLoading(false);
+    if (response.status === 200) {
+      const result = await response.json();
+      setResponse(result);
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="w-1/2">
+      <div className="w-2/4">
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Amazon Associates Tag</span>
+          </div>
+          <input
+            type="text"
+            placeholder="Type here"
+            className="input input-bordered w-full max-w-xs"
+            onChange={(e) => setAssociatesTag(e.target.value)}
+          />
+        </label>
         <label className="form-control w-full max-w-xs">
           <div className="label">
             <span className="label-text">Access Key</span>
@@ -12,6 +61,7 @@ export default function Home() {
             type="password"
             placeholder="Type here"
             className="input input-bordered w-full max-w-xs"
+            onChange={(e) => setAccessKey(e.target.value)}
           />
         </label>
         <label className="form-control w-full max-w-xs">
@@ -22,18 +72,56 @@ export default function Home() {
             type="password"
             placeholder="Type here"
             className="input input-bordered w-full max-w-xs"
+            onChange={(e) => setSecretKey(e.target.value)}
           />
         </label>
         <label className="form-control w-full max-w-xs">
           <div className="label">
-            <span className="label-text">Amazon Product Link</span>
+            <span className="label-text">
+              ASIN (
+              <a href="https://developer.amazon.com/docs/mobile-associates/mas-finding-product-id.html">
+                How to find
+              </a>
+              )
+            </span>
           </div>
           <input
             type="text"
             placeholder="Type here"
             className="input input-bordered w-full max-w-xs"
+            onChange={(e) => setASIN(e.target.value)}
           />
         </label>
+        <button className="btn btn-primary mt-4" onClick={onClickGetImages}>
+          Get Images
+        </button>
+        {isLoading && (
+          <div>
+            <p>Getting images...</p>
+          </div>
+        )}
+        <div>
+          {response.images.map((image: any, index: number) => (
+            <div className="card mt-8 bg-base-100 shadow-xl" key={index}>
+              <figure>
+                <Image
+                  className="mt-8"
+                  src={image.url}
+                  alt={response.title}
+                  width={image.width}
+                  height={image.height}
+                />
+              </figure>
+              <div className="card-body">
+                <div className="mockup-code">
+                  <pre data-prefix="~">
+                    <code>{`<img src="${image.url}" width="${image.width}" height="${image.height}" alt="${response.title}" />`}</code>
+                  </pre>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </main>
   );

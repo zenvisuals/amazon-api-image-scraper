@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "next": "14.0.4",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "superagent": "^8.1.2"
   },
   "devDependencies": {
     "@types/node": "20.11.0",
