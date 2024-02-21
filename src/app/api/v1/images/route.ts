@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await response.json();
+
   const item = body["ItemsResult"]["Items"][0];
   const primaryImages = [
     {
@@ -96,25 +97,28 @@ export async function POST(request: NextRequest) {
       height: item["Images"]["Primary"]["Small"]["Height"],
     },
   ];
-  const variantImages = item["Images"]["Variants"].flatMap((variant: any) => {
-    return [
-      {
-        url: variant["Large"]["URL"],
-        width: variant["Large"]["Width"],
-        height: variant["Large"]["Height"],
-      },
-      {
-        url: variant["Medium"]["URL"],
-        width: variant["Medium"]["Width"],
-        height: variant["Medium"]["Height"],
-      },
-      {
-        url: variant["Small"]["URL"],
-        width: variant["Small"]["Width"],
-        height: variant["Small"]["Height"],
-      },
-    ];
-  });
+  let variantImages = [];
+  if (item["Images"]["Variants"]) {
+    variantImages = item["Images"]["Variants"].flatMap((variant: any) => {
+      return [
+        {
+          url: variant["Large"]["URL"],
+          width: variant["Large"]["Width"],
+          height: variant["Large"]["Height"],
+        },
+        {
+          url: variant["Medium"]["URL"],
+          width: variant["Medium"]["Width"],
+          height: variant["Medium"]["Height"],
+        },
+        {
+          url: variant["Small"]["URL"],
+          width: variant["Small"]["Width"],
+          height: variant["Small"]["Height"],
+        },
+      ];
+    });
+  }
   const images = [...primaryImages, ...variantImages];
 
   return NextResponse.json({

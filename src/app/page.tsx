@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function Home() {
   const [associatesTag, setAssociatesTag] = useState<string>("");
@@ -38,6 +38,13 @@ export default function Home() {
       setResponse(result);
     }
   };
+
+  const images = response.images.map((r: any) => ({
+    url: r.url,
+    width: r.width,
+    height: r.height,
+    code: `<a href="AMAZON_LINK" target="_blank" rel="nofollow noopener noreferrer"><img src="${r.url}" width="${r.width}" height="${r.height}" alt="${response.title}"/></a>`,
+  }));
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -101,7 +108,7 @@ export default function Home() {
           </div>
         )}
         <div>
-          {response.images.map((image: any, index: number) => (
+          {images.map((image: any, index: number) => (
             <div className="card mt-8 bg-base-100 shadow-xl" key={index}>
               <figure>
                 <Image
@@ -114,9 +121,11 @@ export default function Home() {
               </figure>
               <div className="card-body">
                 <div className="mockup-code">
-                  <pre data-prefix="~">
-                    <code>{`<img src="${image.url}" width="${image.width}" height="${image.height}" alt="${response.title}" />`}</code>
-                  </pre>
+                  <textarea
+                    className="w-full font-mono p-4 resize-none bg-transparent"
+                    value={image.code}
+                    readOnly
+                  />
                 </div>
               </div>
             </div>
